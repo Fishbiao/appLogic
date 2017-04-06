@@ -63,10 +63,13 @@ pro.clearn = function(){
     this.handData = [];
 
     //默认没有准备好
-    this.isReady = 0;
+    this.isReady = false;
 
     //特殊牌型
     this.specialType = 0;
+
+    //是否出牌了
+    this.isPlay = false;
 };
 
 //================================黄金分割线=================================
@@ -158,10 +161,15 @@ pro.setIsReady = function(_isReady){
 };
 
 pro.getBoolIsReady = function(){
-    if(this.isReady == 1){
-        return true;
-    }
-    return false;
+    return this.isReady;
+};
+
+pro.setIsPlay = function(_isPlay){
+    this.isPlay = _isPlay;
+};
+
+pro.getBoolIsPlay = function(){
+    return this.isPlay;
 };
 
 pro.setSpecialType = function(_specialType){
@@ -185,7 +193,7 @@ pro.getSeatPublicClientInfo = function(){
     info.eatData = this.eatData;//吃牌数据
     info.pengData = this.pengData;//碰牌数据
     info.gangData = this.gangData;//杠牌数据
-    info.isReady = this.isReady;//是否已经准备好 1=是，0=否
+    info.isReady = this.isReady ? 1 : 0;//是否已经准备好 1=是，0=否
 
     return info;
 }

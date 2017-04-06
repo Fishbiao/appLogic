@@ -121,6 +121,18 @@ pro.isAllReady = function () {
     return true;
 };
 
+/**
+ * 是否所有人都出牌了
+ * */
+pro.isAllPlay = function () {
+    for(var i = 0 ; i < this.seatDataList.length ; i++){
+        if(!this.seatDataList[i].getBoolIsPlay()){
+            return false;
+        }
+    }
+    return true;
+};
+
 
 /**
  * 一个座位玩家准备
@@ -130,7 +142,7 @@ pro.getReadByPlayerId = function ( playerId ) {
     if(!seat){
         return Code.AREA.NOT_MEMBER_ROOM;
     }
-    seat.setIsReady(1);
+    seat.setIsReady(true);
 
     //所有人准备好了就发牌
     if(this.isMemberFull() && this.isAllReady()){
@@ -138,7 +150,7 @@ pro.getReadByPlayerId = function ( playerId ) {
         distributeCard(this);
     }
 
-    thirteenCards.isSpecialType(consts.SHISANSHUI_SPECIAL.SANTONGHUASHUN, [1,3,3,4,5,6,1,42,41,40,16,15,9])
+    //thirteenCards.isSpecialType(consts.SHISANSHUI_SPECIAL.SANTONGHUASHUN, [1,2,3,4,5,6,7,8,9,10,11,12,13]);//测试特殊牌型
 
     return Code.OK;
 };
@@ -163,7 +175,12 @@ pro.setPlayCards = function (playerId, specialType , cards){
         }
     }
     else{
-        seat.setHandData(cards);
+        seat.setHandData(cards);//前中后墩放一起了。
+    }
+    seat.setIsPlay(true);
+
+    if(this.isAllPlay()){//都出牌了，要进行各种逻辑判断
+
     }
     return Code.OK;
 }
@@ -194,6 +211,7 @@ pro.getClientInfo = function(){
     info.currOutCardPlayerId = this.currOutCardPlayerId;
     info.createTime = this.createTime;
     info.finshGameCnt = this.finshGameCnt;
+    info.bankerSeatIndex = this.bankerSeatIndex;
     //info.seatDataList = _map(this.seatDataList.);//等座位功能完成后再写    --座位信息不再这里发，而是没进来一个人就像房间内的所有人推送桌位信息
 
     return info;
