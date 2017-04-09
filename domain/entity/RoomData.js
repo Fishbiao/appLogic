@@ -160,10 +160,17 @@ pro.getReadByPlayerId = function ( playerId ) {
  * isSpecial:是否为特殊牌型 1 == 是
  * cards：非特殊牌型的组牌顺序
  * */
-pro.setPlayCards = function (playerId, specialType , cards){
+pro.setPlayCards = function (playerId, specialType ,ordinaryType, cards){
     var seat = this.getSeatByPlayerId(playerId);
     if(!seat){
         return Code.AREA.NOT_MEMBER_ROOM;
+    }
+    if(seat.getBoolIsPlay()){//已经出牌
+        return Code.AREA.HAVE_PLAYERED;
+    }
+    if(cards ==null)
+    {
+        cards = seat.getHandData();
     }
     //如果是特殊牌型
     if(specialType != consts.SHISANSHUI_SPECIAL.NULL){
@@ -175,13 +182,20 @@ pro.setPlayCards = function (playerId, specialType , cards){
         }
     }
     else{
-        seat.setHandData(cards);//前中后墩放一起了。
+        if(ordinaryType[0] > ordinaryType[1] || ordinaryType[1] > ordinaryType[2]){
+            return Code.AREA.TYPE_SORT_ERROR;
+        }
+        if(thirteenCards.checkOrdinaryCard(ordinaryType, cards))
+        {
+            seat.setHandData(cards);//前中后墩放一起了。
+            seat.setOrdinaryType(ordinaryType);
+        }
+        else{
+            return Code.AREA.ORDINARY_TYPE_ERROR;
+        }
     }
     seat.setIsPlay(true);
 
-    if(this.isAllPlay()){//都出牌了，要进行各种逻辑判断
-
-    }
     return Code.OK;
 }
 

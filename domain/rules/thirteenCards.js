@@ -648,7 +648,7 @@ function isShisanshuiByPkIds(handCards){
     }
 }
 
-//判断给出编号的牌是否为十三水
+//判断给出编号的牌是否为同花十三水
 function isTonghuashisanshuiByPkIds(handCards){
     var values = [];
     var types = [];
@@ -677,6 +677,214 @@ function isTonghuashisanshuiByPkIds(handCards){
     }
     else{
         return false;
+    }
+}
+
+//------------------普通牌型------------------------
+//判断给出编号的牌是否为一对
+function isYiduiByPkIds(handCards){
+    var points = [];
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            points.push(temp.value);
+        }
+    });
+    var orderArray = _.sortBy(points);
+    var uniqArray = _.uniq(orderArray,true);
+    if(handCards.length > uniqArray.length){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+//判断给出编号的牌是否为两对
+function isLiangduiByPkIds(handCards){
+    if(handCards.length == 3){
+        return false;
+    }
+    var points = [];
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            points.push(temp.value);
+        }
+    });
+    var orderArray = _.sortBy(points);
+    if((orderArray[0] == orderArray[1] && orderArray[2] == orderArray[3])
+        ||(orderArray[0] == orderArray[1] && orderArray[3] == orderArray[4])
+        ||(orderArray[1] == orderArray[2]) && orderArray[3] == orderArray[4]){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+//判断给出编号的牌是否为三条
+function isSantiaoByPkIds(handCards){
+    var points = [];
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            points.push(temp.value);
+        }
+    });
+    var orderArray = _.sortBy(points);
+    if((orderArray[0] == orderArray[1] && orderArray[0] == orderArray[2])
+        ||(orderArray[1] == orderArray[2] && orderArray[1] == orderArray[3])
+        ||(orderArray[2] == orderArray[3] && orderArray[2] == orderArray[4])){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+//判断给出编号的牌是否为顺子
+function isShunziByPkIds(handCards){
+    if(handCards.length == 3){
+        return false;
+    }
+    var points = [];
+    var Acount = 0;//尖儿的个数
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5) {
+            if (temp.value == 1) {
+                Acount = Acount + 1;
+            }
+            else {
+                points.push(temp.value);
+            }
+        }
+    });
+    if(Acount == 0){
+        var orderArray = _.sortBy(points);
+        if(orderArray[0] == orderArray[1] - 1 && orderArray[0] == orderArray[2] - 2 && orderArray[0] == orderArray[3] - 3 && orderArray[0] == orderArray[4] - 4){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    else if(Acount == 1){
+        var orderArray = _.sortBy(points.slice(0).push(1));
+        var orderArray1 = _.sortBy(points.slice(0).push(14));
+        if((orderArray[0] == orderArray[1] - 1 && orderArray[0] == orderArray[2] - 2 && orderArray[0] == orderArray[3] - 3 && orderArray[0] == orderArray[4] - 4) ||
+            (orderArray1[0] == orderArray1[1] - 1 && orderArray1[0] == orderArray1[2] - 2 && orderArray1[0] == orderArray1[3] - 3 && orderArray1[0] == orderArray1[4] - 4)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    else{
+        return false;//两个以上的A不可能为顺子了
+    }
+}
+
+//判断给出编号的牌是否为同花
+function isTonghuaByPkIds(handCards) {
+    if(handCards.length == 3){
+        return false;
+    }
+    var firstType = -1;
+    var ret = true;
+    for(var i = 0 ; i < handCards.length ;  i++){
+        var temp = dataApi.PkConfig.findById(handCards[i]);
+        if(temp.cardType < 5) {
+            if(firstType == -1){//记录第一个
+                firstType = temp.cardType;
+            }
+            else{
+                if(temp.cardType != firstType){
+                    ret = false;
+                    break;
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+//判断给出编号的牌是否为葫芦（由三条加一对组成）
+function isHuluByPkIds(handCards) {
+    if(handCards.length == 3){
+        return false;
+    }
+    var points = [];
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            points.push(temp.value);
+        }
+    });
+    var orderArray = _.sortBy(points);
+    if((orderArray[0] == orderArray[1] && orderArray[0] == orderArray[2] && orderArray[3] == orderArray[4]) ||
+        (orderArray[0] == orderArray[1] && orderArray[2] == orderArray[3] && orderArray[2] == orderArray[4])){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+//判断给出编号的牌是否为铁支（4张相同的牌）
+function isHTiezhiByPkIds(handCards) {
+    if(handCards.length == 3){
+        return false;
+    }
+    var points = [];
+    handCards.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            points.push(temp.value);
+        }
+    });
+    var orderArray = _.sortBy(points);
+    if((orderArray[0] == orderArray[1] && orderArray[0] == orderArray[2] && orderArray[0] == orderArray[3]) ||
+        (orderArray[1] == orderArray[2] && orderArray[1] == orderArray[3] && orderArray[1] == orderArray[4])){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+//判断给出编号的牌是否为同花顺
+function isTonghuashunByPkIds(handCards) {
+    if(handCards.length == 3){
+        return false;
+    }
+    return isTonghuaByPkIds(handCards)  && isShunziByPkIds(handCards);
+}
+
+
+//end------------------普通牌型------------------------
+
+//判断普通牌型是否正确,这里只有一墩牌
+function checkOrdinary(type,handCards){
+    switch (type) {
+        case consts.SHISANSHUI_ORDINARY.SANPAI:
+            return true;//散牌是最小的，不做判断，直接判定为真
+        case consts.SHISANSHUI_ORDINARY.YIDUI:
+            return isYiduiByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.LIANGDUI:
+            return isLiangduiByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.SANDUI://三条
+            return isSantiaoByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.SHUNZI://顺子
+            return isShunziByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.TONGHUA://同花
+            return isTonghuaByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.HULU://葫芦
+            return isHuluByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.TIEZHI://铁支
+            return isHTiezhiByPkIds(handCards);
+        case consts.SHISANSHUI_ORDINARY.TONGHUASHUN://同花顺
+            return isTonghuashunByPkIds(handCards);
+        default:
+            return false;
     }
 }
 
@@ -713,5 +921,23 @@ module.exports = {
             default:
                 return false;
         }
+    },
+
+    //判断普通牌型
+    checkOrdinaryCard: function(ordinaryType, cards){
+        var tempBegin = [0,3,8];
+        var tempEnd = [3,8,13];
+        for(var i = 2 ; i >= 0 ; i ++)//从后面往前面判断，因为头墩可能会用到后面两墩的结果
+        {
+            if(!checkOrdinary(ordinaryType[i],cards.slice(tempBegin[i],tempEnd[i]))){
+                return false;
+            }
+        }
+        return true;
+    },
+
+    //判断统一牌型大小，A>B返回1，A==B返回0 ，A<B返回-1
+    compareSameType: function(A,B,ordinaryType){
+        return 1;
     }
 }

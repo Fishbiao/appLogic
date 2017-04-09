@@ -62,6 +62,9 @@ pro.clearn = function(){
     //手牌数据
     this.handData = [];
 
+    //普通牌型
+    this.ordinaryType = [];
+
     //默认没有准备好
     this.isReady = false;
 
@@ -113,6 +116,15 @@ pro.setHandData = function(handData){
     return this;
 };
 
+/***
+ * 设置手牌类型
+ * */
+pro.setOrdinaryType = function(ordinaryType){
+    this.ordinaryType = ordinaryType;
+    return this;
+};
+
+
 //================================黄金分割线=================================
 
 /***
@@ -153,6 +165,13 @@ pro.getGangData = function(){
  * */  
 pro.getHandData = function(){
     return  this.handData; 
+};
+
+/***
+ * 获得手牌类型
+ * */
+pro.getOrdinaryType = function(){
+    return this.ordinaryType;
 };
 
 pro.setIsReady = function(_isReady){
