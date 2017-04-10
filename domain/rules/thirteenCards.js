@@ -93,6 +93,7 @@ function isShunzi_10(points) {
     return false;
 }
 
+//------------------判断是否为特殊牌型------------------------
 //判断给出点数的牌是否为三顺子  points是十三张牌的点数数组
 function isSanshunzi(points){
     var orderArray = _.sortBy(points);
@@ -679,8 +680,9 @@ function isTonghuashisanshuiByPkIds(handCards){
         return false;
     }
 }
+//end------------------判断是否为特殊牌型------------------------
 
-//------------------普通牌型------------------------
+//------------------判断是否为普通牌型------------------------
 //判断给出编号的牌是否为一对
 function isYiduiByPkIds(handCards){
     var points = [];
@@ -860,7 +862,306 @@ function isTonghuashunByPkIds(handCards) {
 }
 
 
-//end------------------普通牌型------------------------
+//end------------------判断是否为普通牌型------------------------
+
+//------------------比较普通牌型大小------------------------
+function getComparePoints(A,B){
+    var pointsA = [];
+    A.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            if(temp.value == 1){
+                pointsA.push(14);
+            }
+            else{
+                pointsA.push(temp.value);
+            }
+        }
+    });
+
+    var pointsB = [];
+    B.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            if(temp.value == 1){
+                pointsB.push(14);
+            }
+            else{
+                pointsB.push(temp.value);
+            }
+        }
+    });
+
+    return [pointsA,pointsB];
+}
+
+function compareSanpaiByValue(pointsA,pointsB){
+    var orderArrayA = _.sortBy(pointsA);
+    var orderArrayB = _.sortBy(pointsB);
+    for(var i = 0 ; i < orderArrayA.length ; i++){
+        if(orderArrayA[i] > orderArrayB[i]){
+            return 1;
+        }
+        else if(orderArrayA[i] < orderArrayB[i]){
+            return -1;
+        }
+    }
+    return 0;
+}
+//比较散牌
+function compareSanpaiPkIds(A,B){
+    if(A.length != B.length){
+        return 0;
+    }
+
+    var points = getComparePoints(A,B);
+
+    return compareSanpaiByValue(points[0],points[1]);
+}
+
+//比较一对
+function compareYiduiPkIds(A,B){
+    var points = getComparePoints(A,B);
+
+    //先找出对子
+    var duiziAValue = 1,
+        duiziBValue = 1;
+    var temp = _.sortBy(points[0]);
+    temp = _.uniq(temp,true);
+    duiziAValue = arraysubtract(points[0].slice(0),temp)[0];
+    temp = _.sortBy(points[1]);
+    temp = _.uniq(temp,true);
+    duiziBValue = arraysubtract(points[1].slice(0),temp)[0];
+    if(duiziAValue > duiziBValue){
+        return 1;
+    }
+    else if(duiziAValue < duiziBValue){
+        return -1;
+    }
+
+    //对牌相同，比较散牌
+    var sanA = _.without(points[0].slice(0),duiziAValue);
+    var sanB = _.without(points[1].slice(0),duiziBValue);
+    return compareSanpaiByValue(sanA,sanB);
+}
+
+//比较两对
+function compareLiangduiPkIds(A,B){
+    var points = getComparePoints(A,B);
+
+    //先找出对子
+    var duiziAValues = [],
+        duiziBValues = [];
+    var temp = _.sortBy(points[0]);
+    temp = _.uniq(temp,true);
+    duiziAValues = arraysubtract(points[0].slice(0),temp);
+    duiziAValues =_.sortBy(duiziAValues);
+    duiziAValues.forEach(function (value){
+        if(value == 1){
+            value = 14;
+        }
+    });
+    temp = _.sortBy(points[1]);
+    temp = _.uniq(temp,true);
+    duiziBValues = arraysubtract(points[1].slice(0),temp);
+    duiziBValues =_.sortBy(duiziBValues);
+    duiziBValues.forEach(function (value){
+        if(value == 1){
+            value = 14;
+        }
+    });
+    var liangduiResult = compareSanpaiByValue(duiziAValues,duiziBValues);
+
+    if(liangduiResult == 0){//比较剩下的一张牌的大小
+        var sanA = _.without(points[0].slice(0),duiziAValues[0],duiziAValues[1]);
+        var sanB = _.without(points[1].slice(0),duiziBValues[0],duiziBValues[1]);
+        if(sanA == 1){
+            sanA = 14;
+        }if(sanB == 1){
+            sanB = 14;
+        }
+        if(sanA > sanB){
+            return 1;
+        }
+        else if(sanA == sanB){
+            return 0;
+        }
+        else{
+            return -1;
+        }
+    }
+    else{
+        return liangduiResult;
+    }
+}
+
+//比较三条,好巧，跟判断一对的过程一模一样
+function compareSantiaoPkIds(A,B){
+    return compareYiduiPkIds(A,B);
+}
+
+//比较顺子
+function compareShunziPkIds(A,B){
+    var pointsA = [];
+    var ABool = false;
+    A.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            if(temp.value == 1){
+                ABool = true;
+            }
+            else{
+                pointsA.push(temp.value);
+            }
+        }
+    });
+
+    var pointsB = [];
+    var BBool = false;
+    B.forEach(function(pkId){
+        var temp = dataApi.PkConfig.findById(pkId);
+        if(temp.cardType < 5){
+            if(temp.value == 1){
+                BBool = true;
+            }
+            else {
+                pointsB.push(temp.value);
+            }
+        }
+    });
+
+    if(ABool){
+        if(pointsA[0] <= 5){
+            pointsA.push(1);
+        }
+        else{
+            pointsA.push(14);
+        }
+    }
+    if(BBool){
+        if(pointsB[0] <= 5){
+            pointsB.push(1);
+        }
+        else{
+            pointsB.push(14);
+        }
+    }
+
+    var orderArrayA = _.sortBy(pointsA);
+    var orderArrayB = _.sortBy(pointsB);
+    if(orderArrayA[0] > orderArrayB[0]){
+        return 1;
+    }
+    else if(orderArrayA[0] < orderArrayB[0]){
+        return -1;
+    }
+    return 0;
+}
+
+//比较同花
+function compareTonghuaPkIds(A,B){
+    return compareSanpaiPkIds(A,B);
+}
+
+//比较葫芦
+function compareHuluPkIds(A,B){
+    var points = getComparePoints(A,B);
+
+    var orderArrayA = _.sortBy(points[0]);
+    var orderArrayB = _.sortBy(points[1]);
+
+    var santiaoAValue = 0,
+        yiduiAValue = 0,
+        santiaoBValue = 0,
+        yiduiBValue = 0;
+    if(orderArrayA[0] == orderArrayA[1] && orderArrayA[0] == orderArrayA[2]){
+        santiaoAValue = orderArrayA[0];
+        yiduiAValue = orderArrayA[4];
+    }
+    else{
+        santiaoAValue = orderArrayA[4];
+        yiduiAValue = orderArrayA[0];
+    }
+    if(orderArrayB[0] == orderArrayB[1] && orderArrayB[0] == orderArrayB[2]){
+        santiaoBValue = orderArrayB[0];
+        yiduiBValue = orderArrayB[4]
+    }
+    else{
+        santiaoBValue = orderArrayB[4];
+        yiduiBValue = orderArrayB[0];
+    }
+
+    if(santiaoAValue > santiaoBValue){
+        return 1;
+    }
+    else if(santiaoAValue == santiaoBValue){
+        if(yiduiAValue > yiduiBValue){
+            return 1;
+        }
+        else if(yiduiAValue == yiduiBValue){
+            return 0;
+        }
+        else{
+            return -1;
+        }
+    }
+    else{
+        return -1;
+    }
+}
+
+//比较铁支
+function compareTiezhiPkIds(A,B){
+    var points = getComparePoints(A,B);
+
+    var orderArrayA = _.sortBy(points[0]);
+    var orderArrayB = _.sortBy(points[1]);
+
+    var tiezhiAValue = 0,
+        sanAValue = 0,
+        tieHiBValue = 0,
+        sanBValue = 0;
+    if(orderArrayA[0] == orderArrayA[1] && orderArrayA[0] == orderArrayA[2] && orderArrayA[0] == orderArrayA[3]){
+        tiezhiAValue = orderArrayA[0];
+        sanAValue = orderArrayA[4];
+    }
+    else{
+        tiezhiAValue = orderArrayA[4];
+        sanAValue = orderArrayA[0];
+    }
+    if(orderArrayB[0] == orderArrayB[1] && orderArrayB[0] == orderArrayB[2] && orderArrayB[0] == orderArrayB[3]){
+        tieHiBValue = orderArrayB[0];
+        sanBValue = orderArrayB[4];
+    }
+    else{
+        tieHiBValue = orderArrayB[4];
+        sanBValue = orderArrayB[0];
+    }
+
+    if(tiezhiAValue > tieHiBValue){
+        return 1;
+    }
+    else if(tiezhiAValue == tieHiBValue){
+        if(sanAValue > sanBValue){
+            return 1;
+        }
+        else if(sanAValue == sanBValue){
+            return 0;
+        }
+        else{
+            return -1;
+        }
+    }
+    else{
+        return -1;
+    }
+}
+
+//比较同花顺
+function compareTonghuaShunPkIds(A,B){
+    return compareShunziPkIds(A,B);
+}
+//end------------------比较普通牌型大小------------------------
 
 //判断普通牌型是否正确,这里只有一墩牌
 function checkOrdinary(type,handCards){
@@ -871,7 +1172,7 @@ function checkOrdinary(type,handCards){
             return isYiduiByPkIds(handCards);
         case consts.SHISANSHUI_ORDINARY.LIANGDUI:
             return isLiangduiByPkIds(handCards);
-        case consts.SHISANSHUI_ORDINARY.SANDUI://三条
+        case consts.SHISANSHUI_ORDINARY.SANTIAO://三条
             return isSantiaoByPkIds(handCards);
         case consts.SHISANSHUI_ORDINARY.SHUNZI://顺子
             return isShunziByPkIds(handCards);
@@ -936,8 +1237,29 @@ module.exports = {
         return true;
     },
 
-    //判断统一牌型大小，A>B返回1，A==B返回0 ，A<B返回-1
+    //判断同一牌型大小，A>B返回1，A==B返回0 ，A<B返回-1
     compareSameType: function(A,B,ordinaryType){
-        return 1;
+        switch (ordinaryType){
+            case consts.SHISANSHUI_ORDINARY.SANPAI:
+                return compareSanpaiPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.YIDUI:
+                return compareYiduiPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.LIANGDUI:
+                return compareLiangduiPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.SANTIAO://三条
+                return compareSantiaoPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.SHUNZI://顺子
+                return compareShunziPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.TONGHUA://同花
+                return compareTonghuaPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.HULU://葫芦
+                return compareHuluPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.TIEZHI://铁支
+                return compareTiezhiPkIds(A,B);
+            case consts.SHISANSHUI_ORDINARY.TONGHUASHUN://同花顺
+                return compareTonghuaShunPkIds(A,B);
+            default:
+                return false;
+        }
     }
 }

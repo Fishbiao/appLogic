@@ -195,7 +195,7 @@ pro.setSpecialType = function(_specialType){
     this.specialType = _specialType;
 }
 
-pro.getspecialType = function(){
+pro.getSpecialType = function(){
     return this.specialType;
 };
 
