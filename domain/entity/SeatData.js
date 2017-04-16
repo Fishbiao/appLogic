@@ -176,7 +176,9 @@ pro.getOrdinaryType = function(){
 
 pro.setIsReady = function(_isReady){
     this.isReady = _isReady;
-    this.room.pushMsgToMembers('seat.ready',{seatId:this.id});
+    if(_isReady){
+        this.room.pushMsgToMembers('seat.ready',{seatId:this.id});
+    }
 };
 
 pro.getBoolIsReady = function(){

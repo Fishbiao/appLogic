@@ -38,6 +38,9 @@ var RoomData = function(opts){
     //牌堆
     this.originalCards = [];
 
+    //上一场的结果
+    this.lastResult = null;
+
     //初始化牌堆
     var _self = this;
     dataApi.PkConfig.getIdsWithoutKing(function(id){
@@ -197,6 +200,16 @@ pro.setPlayCards = function (playerId, specialType ,ordinaryType, cards){
     seat.setIsPlay(true);
 
     return Code.OK;
+}
+
+//设置上一场的结果
+pro.setLastResult = function(_result){
+    this.lastResult = _result;
+}
+
+//获取上一场的结果
+pro.getLastResult = function(){
+    return this.lastResult;
 }
 
 
