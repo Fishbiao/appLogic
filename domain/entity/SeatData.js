@@ -73,6 +73,9 @@ pro.clearn = function(){
 
     //是否出牌了
     this.isPlay = false;
+
+    //isOffline
+    this.isOffline = false;
 };
 
 //================================黄金分割线=================================
@@ -125,6 +128,7 @@ pro.setOrdinaryType = function(ordinaryType){
 };
 
 
+
 //================================黄金分割线=================================
 
 /***
@@ -133,6 +137,14 @@ pro.setOrdinaryType = function(ordinaryType){
  * */  
 pro.getSeatIndex = function(){
     return  this.id;
+};
+
+/***
+ * 获取玩家id
+ * return int；
+ * */
+pro.getPlayerId = function(){
+    return  this.playerId;
 };
 
 /***
@@ -199,7 +211,16 @@ pro.setSpecialType = function(_specialType){
 
 pro.getSpecialType = function(){
     return this.specialType;
-};
+}
+
+//设置离线状态
+pro.setIsOffline = function(b){
+    this.isOffline = b;
+}
+//获取离线状态
+pro.getBoolIsOffline = function(){
+    return this.isOffline;
+}
 
 pro.refreshData = function(data){
     this.mSeatData = data;

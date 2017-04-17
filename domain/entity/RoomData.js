@@ -212,6 +212,43 @@ pro.getLastResult = function(){
     return this.lastResult;
 }
 
+//处理成员离线
+pro.onMemberLogoff = function(player){
+    for(var i = 0 ; i < this.seatDataList.length ; i++){
+        var seatData = this.seatDataList[i];
+        if(seatData.getPlayerId() == player.id){
+            seatData.setIsOffline(true);
+            if(!seatData.getBoolIsPlay()){//如果没有出牌
+                var cards = thirteenCards.offlineSort(seatData.getHandData());
+                var _code = this.setPlayCards(player.id ,consts.SHISANSHUI_SPECIAL.NULL, [consts.SHISANSHUI_ORDINARY.SANPAI,consts.SHISANSHUI_ORDINARY.SANPAI,consts.SHISANSHUI_ORDINARY.SANPAI], cards);
+                //都出牌了，要进行各种积分
+                if(this.isAllPlay()){
+                    //第一步，将不是特殊牌型的几个玩家的牌进行比较，分别得出第一二三轮的出牌顺序和得分情况。
+                    var ordinarySeatList = {};//普通牌型的座位信息 {座位号：座位信息}
+                    var specialSeatList = {};//特殊牌型的座位信息
+                    for(var i = 0 ; i < this.seatDataList.length ; i++){
+                        if(this.seatDataList[i].getSpecialType() == consts.SHISANSHUI_SPECIAL.NULL){
+                            ordinarySeatList[this.seatDataList[i].getSeatIndex()] = this.seatDataList[i];
+                        }
+                        else{
+                            specialSeatList[this.seatDataList[i].getSeatIndex()] = this.seatDataList[i];
+                        }
+                    }
+
+                    //结果计算完毕，把结果推送给玩家
+                    var result = thirteenCards.calcResult(ordinarySeatList,ordinarySeatList);
+
+                    this.pushMsgToMembers('thirtyCards.result',result);
+
+                    this.setLastResult(result);
+                }
+            }
+            //delete this.seatDataList[i];//不能直接删除，不然会出问题
+            break;
+        }
+    }
+}
+
 
 /***刷新一个座位数据 */
 pro.refreshSeatData = function(seatData){
@@ -224,7 +261,7 @@ pro.pushMsgToMembers = function(route, msg){
     this.seatDataList.forEach(function(seatData){
         var playerId = seatData.playerId;
         var player = area.getPlayer(playerId);
-        if(!!player){
+        if(!!player && !seatData.getBoolIsOffline()){
             player.pushMsg(route, msg);
         }
     });

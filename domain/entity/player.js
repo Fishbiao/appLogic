@@ -11,7 +11,8 @@ var Entity = require('./entity'),
     consts = require('../../consts/consts'),
     messageService = require('../messageService'),
     dataUtils = require('../../util/dataUtils'),
-    EVENTS = require('../event/events')
+    EVENTS = require('../event/events'),
+    RoomData = require('./RoomData')
     /*bag = require('./bag'),
     Hero = require('./hero'),
     Pet = require('./pet'),
@@ -672,6 +673,11 @@ pro.resetBarrierAfterExit = function (playerId, barrierId, newStar, costTick, re
 pro.onLogoff = function () {
     this.clearLeaveTime();
 
+    //如果在房间中的话就要处理
+    var room = RoomData.getRoom(this.roomId);
+    if(!!room){
+        room.onMemberLogoff(this);
+    }
 };
 
 pro.clearLeaveTime = function () {
