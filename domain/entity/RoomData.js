@@ -291,7 +291,8 @@ function distributeCard(room){
     var cardsOfseat = [];
     for(var i = 0 ; i < countEachroom ; i ++){//连续的牌发给一个座位，从庄家开始
         var distSeatIndex = (room.bankerSeatIndex + i + countEachroom)%countEachroom;//应该发牌的座位号
-        cardsOfseat.length = 0;
+        //cardsOfseat.length = 0;
+        cardsOfseat = [];
         for(var j = distSeatIndex* countEachseat ; j < distSeatIndex* countEachseat + countEachseat ; j ++){
             cardsOfseat.push(room.originalCards[j]);
         }

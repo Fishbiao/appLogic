@@ -4,7 +4,8 @@
 * */
 var consts = require('../../consts/consts'),
     dataApi = require('../../util/dataApi'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    dataUtils = require('../../util/dataUtils');
 
 //数组相减，arr1中重复的不会被剪掉，不然直接使用_.without方法就可以了。
 function arraysubtract(arr1,arr2){
@@ -1228,7 +1229,7 @@ module.exports = {
     checkOrdinaryCard: function(ordinaryType, cards){
         var tempBegin = [0,3,8];
         var tempEnd = [3,8,13];
-        for(var i = 2 ; i >= 0 ; i ++)//从后面往前面判断，因为头墩可能会用到后面两墩的结果
+        for(var i = 2 ; i >= 0 ; i --)//从后面往前面判断，因为头墩可能会用到后面两墩的结果
         {
             if(!checkOrdinary(ordinaryType[i],cards.slice(tempBegin[i],tempEnd[i]))){
                 return false;
@@ -1269,7 +1270,7 @@ module.exports = {
         handCards.forEach(function(pkId){
             var temp = dataApi.PkConfig.findById(pkId);
             if(temp.cardType < 5){
-                var data = [];
+                var data = {};
                 if(temp.value == 1){
                     data.value = 14;
                 }
@@ -1300,7 +1301,7 @@ module.exports = {
         for(var seatIndex in ordinarySeatList){
             var playData = {};
             playData.seatIndex = seatIndex;//出牌的座位号
-            playData.ordinaryType = ordinarySeatList[seatIndex].getOrdinaryType();
+            playData.ordinaryType = ordinarySeatList[seatIndex].getOrdinaryType()[0];
             playData.cards = ordinarySeatList[seatIndex].getHandData().slice(0,3);//打出的牌编号
             firstCycle.push(playData);
         }
@@ -1329,7 +1330,7 @@ module.exports = {
 
                 }
                 else if(firstCycle[i].ordinaryType == firstCycle[j].ordinaryType){//比较里面的大小
-                    var comp = thirteenCards.compareSameType(firstCycle[i].cards,firstCycle[j].cards,firstCycle[i].ordinaryType);
+                    var comp = this.compareSameType(firstCycle[i].cards,firstCycle[j].cards,firstCycle[i].ordinaryType);
                     if(comp > 0)
                     {
                         var rate = 1;
@@ -1381,8 +1382,8 @@ module.exports = {
         firstCycleSort.forEach(function(cycleData){
             var seatData = ordinarySeatList[cycleData.seatIndex];
             var playData = {};
-            playData.seatIndex = seatData.seatIndex;
-            playData.ordinaryType = seatData.getOrdinaryType();
+            playData.seatIndex = seatData.id;
+            playData.ordinaryType = seatData.getOrdinaryType()[1];
             playData.cards = seatData.getHandData().slice(3,8);//打出的牌编号
             secondCycle.push(playData);
         });
@@ -1416,7 +1417,7 @@ module.exports = {
                     secondDaqiangScore[secondCycle[j].seatIndex][secondCycle[i].seatIndex] -= 1*rate;
                 }
                 else if(secondCycle[i].ordinaryType == secondCycle[j].ordinaryType){//比较里面的大小
-                    var comp = thirteenCards.compareSameType(secondCycle[i].cards, secondCycle[j].cards, secondCycle[i].ordinaryType);
+                    var comp = this.compareSameType(secondCycle[i].cards, secondCycle[j].cards, secondCycle[i].ordinaryType);
                     if(comp > 0)
                     {
                         var rate = 1;
@@ -1486,8 +1487,8 @@ module.exports = {
         secondCycleSort.forEach(function(cycleData){
             var seatData = ordinarySeatList[cycleData.seatIndex];
             var playData = {};
-            playData.seatIndex = seatData.seatIndex;
-            playData.ordinaryType = seatData.getOrdinaryType();
+            playData.seatIndex = seatData.id;
+            playData.ordinaryType = seatData.getOrdinaryType()[2];
             playData.cards = seatData.getHandData().slice(8,13);//打出的牌编号
             thirdCycle.push(playData);
         });
@@ -1514,7 +1515,7 @@ module.exports = {
                     thirdDaqiangScore[thirdCycle[j].seatIndex][thirdCycle[i].seatIndex] -= 1*rate;
                 }
                 else if(thirdCycle[i].ordinaryType == thirdCycle[j].ordinaryType){//比较里面的大小
-                    var comp = thirteenCards.compareSameType(thirdCycle[i].cards,thirdCycle[j].cards,thirdCycle[i].ordinaryType);
+                    var comp = this.compareSameType(thirdCycle[i].cards,thirdCycle[j].cards,thirdCycle[i].ordinaryType);
                     if(comp > 0)
                     {
                         var rate = 1;
@@ -1606,8 +1607,8 @@ module.exports = {
         var daqiangData = [];//[[a,b],[]]表示座位号a对座位号b打枪*****
         var daqiangScore = [0,0,0,0];//打枪结果每个座位应该加减的分数，按座位号顺序*****
         //if(room.seatDataList.length >= 3){//3人和3人以上的局才算打枪
-        for(var i = 0 ; i < room.seatDataList.length ; i ++){
-            for(var j = i + 1 ; j < room.seatDataList.length ; j ++){
+        for(var i = 0 ; i < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; i ++){
+            for(var j = i + 1 ; j < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; j ++){
                 if(firstDaqiangFlag[i][j] + secondDaqiangFlag[i][j] + thirdDaqiangFlag[i][j] == 3){//表示i对j打枪,i,j就是座位顺序 3表示三轮
                     var temp = {};
                     temp.fire = i;
@@ -1624,19 +1625,19 @@ module.exports = {
         //计算全垒打
         var quanleidaIndex = -1;//全垒打的座位号*****
         var quanleidaScore = [0,0,0,0];//全垒打结果每个座位应该加减的分数，按座位号顺序*****
-        if(room.seatDataList.length == 4){//4人局才算全垒打
+        if(dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) == 4){//4人局才算全垒打
             var daqiangCount = [0,0,0,0];
             for(var i = 0 ; i < daqiangData.length ; i ++){
                 daqiangCount[daqiangData[i][0]] += 1;
             }
             for(var i = 0 ; i < daqiangCount.length ; i ++){
-                if(daqiangCount[i] == room.seatDataList.length - 1){
+                if(daqiangCount[i] == dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) - 1){
                     quanleidaIndex = i;
                     break;
                 }
             }
             if(quanleidaIndex != -1){//有全垒打者
-                for(var i = 0 ; i < room.seatDataList.length ; i ++){
+                for(var i = 0 ; i < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; i ++){
                     quanleidaScore[i] += 2*daqiangScore[i];//这里的倍率应该配置
                 }
             }
