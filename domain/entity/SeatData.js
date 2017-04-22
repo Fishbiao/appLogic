@@ -228,6 +228,7 @@ pro.refreshData = function(data){
 }
 
 pro.getSeatPublicClientInfo = function(){
+    var player = area.getPlayer(this.playerId);
     var info = {};
     info.id = this.id;
     info.playerId = this.playerId;
@@ -236,6 +237,10 @@ pro.getSeatPublicClientInfo = function(){
     info.pengData = this.pengData;//碰牌数据
     info.gangData = this.gangData;//杠牌数据
     info.isReady = this.isReady ? 1 : 0;//是否已经准备好 1=是，0=否
+    if(player){
+        info.playerName = player.playerName;
+        info.goldCnt = player.goldCnt;
+    }
 
     return info;
 }
