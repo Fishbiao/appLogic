@@ -224,7 +224,11 @@ function isSanshunziByPkIds(handCards){
         return isSanshunzi(points);
     }
     else if(Acount == 1){
-        return isSanshunzi(points.slice(0).push(1)) || isSanshunzi(points.slice(0).push(14));
+        var array = points.slice(0);
+        array.push(1);
+        var array1 = points.slice(14);
+        array1.push(1);
+        return isSanshunzi(array) || isSanshunzi(array1);
     }
     else if(Acount == 2){
         var temp = points.slice(0);
@@ -764,7 +768,7 @@ function isShunziByPkIds(handCards){
         }
     });
     if(Acount == 0){
-        var orderArray = _.sortBy(points);
+        var orderArray = _.sortBy(points,function(value){return value});
         if(orderArray[0] == orderArray[1] - 1 && orderArray[0] == orderArray[2] - 2 && orderArray[0] == orderArray[3] - 3 && orderArray[0] == orderArray[4] - 4){
             return true;
         }else{
@@ -772,8 +776,12 @@ function isShunziByPkIds(handCards){
         }
     }
     else if(Acount == 1){
-        var orderArray = _.sortBy(points.slice(0).push(1));
-        var orderArray1 = _.sortBy(points.slice(0).push(14));
+        var orderArray = points.slice(0);//_.sortBy(points.slice(0).push(1));
+        orderArray.push(1);
+        orderArray = _.sortBy(orderArray,function(value){return value});
+        var orderArray1 = points.slice(0);//_.sortBy(points.slice(0).push(14));
+        orderArray1.push(14);
+        orderArray1 = _.sortBy(orderArray1,function(value){return value});
         if((orderArray[0] == orderArray[1] - 1 && orderArray[0] == orderArray[2] - 2 && orderArray[0] == orderArray[3] - 3 && orderArray[0] == orderArray[4] - 4) ||
             (orderArray1[0] == orderArray1[1] - 1 && orderArray1[0] == orderArray1[2] - 2 && orderArray1[0] == orderArray1[3] - 3 && orderArray1[0] == orderArray1[4] - 4)){
             return true;
