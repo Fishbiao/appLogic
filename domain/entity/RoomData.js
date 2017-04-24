@@ -203,14 +203,14 @@ pro.setPlayCards = function (playerId, specialType ,ordinaryType, cards){
 }
 
 //设置上一场的结果
-pro.setLastResult = function(_result){
+/*pro.setLastResult = function(_result){
     this.lastResult = _result;
 }
 
 //获取上一场的结果
 pro.getLastResult = function(){
     return this.lastResult;
-}
+}*/
 
 //处理成员离线
 pro.onMemberLogoff = function(player){
