@@ -907,7 +907,7 @@ function getComparePoints(A,B){
 function compareSanpaiByValue(pointsA,pointsB){
     var orderArrayA = _.sortBy(pointsA);
     var orderArrayB = _.sortBy(pointsB);
-    for(var i = 0 ; i < orderArrayA.length ; i++){
+    for(var i = orderArrayA.length - 1 ; i >= 0 ; i--){//从大到小比较
         if(orderArrayA[i] > orderArrayB[i]){
             return 1;
         }
