@@ -1304,7 +1304,7 @@ module.exports = {
     },
 
     //计算结果
-    calcResult:function(ordinarySeatList,specialSeatList){
+    calcResult:function(ordinarySeatList,specialSeatList,memberCount){
         var firstCycle = [];//第一轮出牌顺序和内容*****
         for(var seatIndex in ordinarySeatList){
             var playData = {};
@@ -1615,12 +1615,21 @@ module.exports = {
         var daqiangData = [];//[[a,b],[]]表示座位号a对座位号b打枪*****
         var daqiangScore = [0,0,0,0];//打枪结果每个座位应该加减的分数，按座位号顺序*****
         //if(room.seatDataList.length >= 3){//3人和3人以上的局才算打枪
-        for(var i = 0 ; i < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; i ++){
-            for(var j = i + 1 ; j < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; j ++){
+        for(var i = 0 ; i < memberCount; i ++){
+            for(var j = i + 1 ; j < memberCount ; j ++){
                 if(firstDaqiangFlag[i][j] + secondDaqiangFlag[i][j] + thirdDaqiangFlag[i][j] == 3){//表示i对j打枪,i,j就是座位顺序 3表示三轮
                     var temp = {};
                     temp.fire = i;
                     temp.beShot = j;
+                    daqiangData.push(temp);
+
+                    daqiangScore[i] = firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
+                    daqiangScore[j] = firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
+                }
+                else if(firstDaqiangFlag[i][j] + secondDaqiangFlag[i][j] + thirdDaqiangFlag[i][j] == -3){//表示j对i打枪,i,j就是座位顺序 3表示三轮
+                    var temp = {};
+                    temp.fire = j;
+                    temp.beShot = i;
                     daqiangData.push(temp);
 
                     daqiangScore[i] = firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
@@ -1633,19 +1642,19 @@ module.exports = {
         //计算全垒打
         var quanleidaIndex = -1;//全垒打的座位号*****
         var quanleidaScore = [0,0,0,0];//全垒打结果每个座位应该加减的分数，按座位号顺序*****
-        if(dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) == 4){//4人局才算全垒打
+        if(memberCount == 4){//4人局才算全垒打
             var daqiangCount = [0,0,0,0];
             for(var i = 0 ; i < daqiangData.length ; i ++){
                 daqiangCount[daqiangData[i][0]] += 1;
             }
             for(var i = 0 ; i < daqiangCount.length ; i ++){
-                if(daqiangCount[i] == dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) - 1){
+                if(daqiangCount[i] == memberCount - 1){
                     quanleidaIndex = i;
                     break;
                 }
             }
             if(quanleidaIndex != -1){//有全垒打者
-                for(var i = 0 ; i < dataUtils.getOptionValue('NumEachRoom_shisanshui', 3) ; i ++){
+                for(var i = 0 ; i < memberCount ; i ++){
                     quanleidaScore[i] += 2*daqiangScore[i];//这里的倍率应该配置
                 }
             }

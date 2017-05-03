@@ -34,7 +34,7 @@ var RoomData = function(opts){
     this.createTime = opts.createTime || new Date().getTime();             //创建房间的时间,如果不是已经有的房间重新初始化，就默认为创建房间
     this.finshGameCnt = opts.finshGameCnt || 0;           //已完成游戏局数
     this.bankerSeatIndex = opts.bankerSeatIndex || 0;   //庄家的座位号，默认从0开始
-
+    this.memberCount = opts.count;//本房间允许的玩家人数，几人房
     //牌堆
     this.originalCards = [];
 
@@ -106,7 +106,7 @@ pro.getSeatByPlayerId = function ( playerId ) {
  * 是否已经满员
  * */
 pro.isMemberFull = function () {
-    if(this.seatDataList.length >= dataUtils.getOptionValue('NumEachRoom_shisanshui', 3)){
+    if(this.seatDataList.length >= this.memberCount){
         return true;
     }
     return false;
@@ -286,7 +286,7 @@ function distributeCard(room){
     //先要洗牌
     room.originalCards = _.shuffle(room.originalCards);
 
-    var countEachroom = dataUtils.getOptionValue('NumEachRoom_shisanshui', 3);
+    var countEachroom = room.memberCount;
     var countEachseat = dataUtils.getOptionValue('NumEachSeat_shisanshui', 13);
     var cardsOfseat = [];
     for(var i = 0 ; i < countEachroom ; i ++){//连续的牌发给一个座位，从庄家开始
@@ -295,6 +295,13 @@ function distributeCard(room){
         cardsOfseat = [];
         for(var j = distSeatIndex* countEachseat ; j < distSeatIndex* countEachseat + countEachseat ; j ++){
             cardsOfseat.push(room.originalCards[j]);
+        }
+
+        if(i == 0){
+            cardsOfseat = [7,19,29,3,20,37,39,14,15,17,36,10,11];
+        }
+        else{
+            cardsOfseat = [33,40,49,35,48,24,50,2,12,25,38,6,45];
         }
 
         var seatData = room.seatDataList[distSeatIndex];

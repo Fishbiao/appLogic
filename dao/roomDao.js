@@ -14,11 +14,11 @@ var roomDao = module.exports;
 /*
  *   创角房间
  * */
-roomDao.createRoom = function (playerId, cb) {
-    var sql = 'insert into room (createPlayerId,createTime)' +
-            ' values(?,?)',
+roomDao.createRoom = function (playerId,count, cb) {
+    var sql = 'insert into room (createPlayerId,createTime,memberCount)' +
+            ' values(?,?,?)',
         now = Date.now(),
-        args = [playerId, now];
+        args = [playerId, now,count];
 
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
