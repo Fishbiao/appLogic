@@ -297,13 +297,6 @@ function distributeCard(room){
             cardsOfseat.push(room.originalCards[j]);
         }
 
-        if(i == 0){
-            cardsOfseat = [7,19,29,3,20,37,39,14,15,17,36,10,11];
-        }
-        else{
-            cardsOfseat = [33,40,49,35,48,24,50,2,12,25,38,6,45];
-        }
-
         var seatData = room.seatDataList[distSeatIndex];
         seatData.setHandData(cardsOfseat);
 
