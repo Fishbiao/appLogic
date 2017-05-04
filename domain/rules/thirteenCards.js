@@ -1621,19 +1621,21 @@ module.exports = {
                     var temp = {};
                     temp.fire = i;
                     temp.beShot = j;
+                    temp.score = firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
                     daqiangData.push(temp);
 
-                    daqiangScore[i] = firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
-                    daqiangScore[j] = firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
+                    daqiangScore[i] += firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
+                    daqiangScore[j] += firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
                 }
                 else if(firstDaqiangFlag[i][j] + secondDaqiangFlag[i][j] + thirdDaqiangFlag[i][j] == -3){//表示j对i打枪,i,j就是座位顺序 3表示三轮
                     var temp = {};
                     temp.fire = j;
                     temp.beShot = i;
+                    temp.score = firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
                     daqiangData.push(temp);
 
-                    daqiangScore[i] = firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
-                    daqiangScore[j] = firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
+                    daqiangScore[i] += firstDaqiangScore[i][j] + secondDaqiangScore[i][j] + thirdDaqiangScore[i][j];
+                    daqiangScore[j] += firstDaqiangScore[j][i] + secondDaqiangScore[j][i] + thirdDaqiangScore[j][i];
                 }
             }
         }
