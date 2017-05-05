@@ -1040,23 +1040,25 @@ function compareShunziPkIds(A,B){
     });
 
     if(ABool){
-        if(pointsA[0] <= 5){
+        /*if(pointsA[0] <= 5){
             pointsA.push(1);
         }
         else{
             pointsA.push(14);
-        }
+        }*/
+        pointsA.push(14);
     }
     if(BBool){
-        if(pointsB[0] <= 5){
+        /*if(pointsB[0] <= 5){
             pointsB.push(1);
         }
         else{
             pointsB.push(14);
-        }
+        }*/
+        pointsB.push(14);
     }
 
-    var orderArrayA = _.sortBy(pointsA);
+    /*var orderArrayA = _.sortBy(pointsA);
     var orderArrayB = _.sortBy(pointsB);
     if(orderArrayA[0] > orderArrayB[0]){
         return 1;
@@ -1064,7 +1066,8 @@ function compareShunziPkIds(A,B){
     else if(orderArrayA[0] < orderArrayB[0]){
         return -1;
     }
-    return 0;
+    return 0;*/
+    return compareSanpaiByValue(pointsA,pointsB);
 }
 
 //比较同花
