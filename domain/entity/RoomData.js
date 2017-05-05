@@ -236,11 +236,35 @@ pro.onMemberLogoff = function(player){
                     }
 
                     //结果计算完毕，把结果推送给玩家
-                    var result = thirteenCards.calcResult(ordinarySeatList,ordinarySeatList);
+                    var result = thirteenCards.calcResult(ordinarySeatList,specialSeatList,this.memberCount);
 
                     this.pushMsgToMembers('thirtyCards.result',result);
 
-                    this.setLastResult(result);
+                    //this.setLastResult(result);
+                    var totalScore = [0,0,0,0];//按桌位顺序
+                    for(var i = 0 ; i < this.seatDataList.length ; i ++){
+                        totalScore[i] += result.firstScore[i];
+                        totalScore[i] += result.secondScore[i];
+                        totalScore[i] += result.thirdScore[i];
+                        totalScore[i] += result.specialScore[i];
+                        totalScore[i] += result.daqiangScore[i];
+                        totalScore[i] += result.quanleidaScore[i];
+
+                        var playerId = this.seatDataList[i].playerId;
+                        var player = area.getPlayer(playerId);
+                        if(!!player){//这里不用分是否离线，因为下线保持数据在onMemberLogoff之后执行
+                            var gold = player.goldCnt + totalScore[i];
+                            player.set('goldCnt',(player.goldCnt + totalScore[i]) >= 0 ? gold : 0);
+                        }
+                        this.seatDataList[i].clearn();
+
+                        this.seatDataList[i].setIsReady(false);
+                        this.seatDataList[i].setIsPlay(false);
+                    }
+
+                    //推送离线消息
+                    this.pushMsgToMembers('seat.offline',{seatIndex:i});
+
                 }
             }
             //delete this.seatDataList[i];//不能直接删除，不然会出问题

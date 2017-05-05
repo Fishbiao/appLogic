@@ -12,7 +12,8 @@ var Entity = require('./entity'),
     messageService = require('../messageService'),
     dataUtils = require('../../util/dataUtils'),
     EVENTS = require('../event/events'),
-    RoomData = require('./RoomData')
+    RoomData = require('./RoomData'),
+    roomManager = require('../area/roomManager')
     /*bag = require('./bag'),
     Hero = require('./hero'),
     Pet = require('./pet'),
@@ -674,7 +675,7 @@ pro.onLogoff = function () {
     this.clearLeaveTime();
 
     //如果在房间中的话就要处理
-    var room = RoomData.getRoom(this.roomId);
+    var room = roomManager.getRoom(this.roomId);
     if(!!room){
         room.onMemberLogoff(this);
     }

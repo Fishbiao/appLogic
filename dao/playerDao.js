@@ -302,3 +302,18 @@ playerDao.createPlayerName = function ( playerId, name, cb) {
         }
     });
 };
+
+/*
+ *   增加金币数量
+ * */
+playerDao.addGold = function (playerId,goldAdd, cb) {
+    var sql = 'CALL onAddGold(?,?)';
+    pomelo.app.get('dbclient').query(sql, [playerId, goldAdd], function (err, res) {
+        if (!!err) {
+            logger.error('addGold err = %s', err.stack);
+            utils.invokeCallback(cb, err.message, false);
+        } else {
+            utils.invokeCallback(cb, null, true);
+        }
+    });
+};
